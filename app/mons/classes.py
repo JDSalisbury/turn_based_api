@@ -1,9 +1,8 @@
-import random
 from faker import Faker
-from .mon_funcs import *
+import random
+from app.game_logic import Dice
 
-
-class MonManager:
+class MonManager(Dice):
     class Meta:
         abstract = True
 
@@ -21,7 +20,50 @@ class MonManager:
             ]
         }
 
-class LowLvlMons(MonManager):
+
+
+    @classmethod
+    def stats(self, lvl):
+        return self.dice_roll(lvl, 6, lvl)
+
+
+    @classmethod
+    def create_random_mon(self, start, stop, move_list):
+
+        lvl = random.randrange(start, stop + 1) 
+        fake = Faker()        
+        mon = {}
+        mon["name"] = fake.name()
+        mon["lvl"] = lvl
+        mon["hp"] = self.dice_roll(2, 6, lvl)
+        mon['mana'] = self.dice_roll(3, 10, 10)
+        mon["ATK"] = self.stats(lvl)
+        mon["DEF"] = self.stats(lvl)
+        mon["MAG"] = self.stats(lvl)
+        mon["MDF"] = self.stats(lvl)
+        mon["SPD"] = self.stats(lvl)
+        moves = []
+        for _ in range(4):
+            move = random.choice(move_list)
+            if move not in moves:
+                moves.append(move)
+        mon['moves'] = moves
+        return mon
+
+
+class Move():
+
+    def __init__(self, lvl):
+        self.name =''
+        self.dmg = ''
+        self.chance = ''
+        self.d_type = ''
+        self.cost = ''
+
+
+
+
+class LowLvlMon(MonManager):
 
     MOVE_LIST = [
         {
@@ -59,9 +101,9 @@ class LowLvlMons(MonManager):
 
     @classmethod
     def random_mon(self):
-        return create_random_mon(1, 5, self.MOVE_LIST)
+        return self.create_random_mon(1, 5, self.MOVE_LIST)
 
-class MidLvlMons(MonManager):
+class MidLvlMon(MonManager):
 
     MOVE_LIST = [
         {
@@ -98,4 +140,4 @@ class MidLvlMons(MonManager):
 
     @classmethod
     def random_mon(self):
-        return create_random_mon(5, 10, self.MOVE_LIST)
+        return self.create_random_mon(5, 10, self.MOVE_LIST)
