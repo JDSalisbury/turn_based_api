@@ -2,9 +2,45 @@ from faker import Faker
 import random
 from app.game_logic import Dice
 
+
+class Move():
+
+    def __init__(self, name, m_type, dmg, chance, d_type, cost, critical, description, stat_changes=[], effect_chance=0, effect=''):
+        self.name = name
+        self.m_type = m_type
+        self.dmg = dmg
+        self.chance = chance
+        self.d_type = d_type
+        self.critical = critical
+        self.cost = cost
+        self.description = description
+        self.stat_changes = stat_changes
+        self.effect = effect
+        self.effect_chance = effect_chance
+
+
+
 class MonManager(Dice):
     class Meta:
         abstract = True
+
+    LOW_MOVE_LIST = [
+        Move('Pound', 'Attack', 40, 100, 'physical', 4, 10, "Normal DMG Attack" ),
+        Move('Tackle', 'Attack', 30, 100, 'physical', 2, 0, "Normal DMG Attack" ),
+        Move('Slash', 'Attack', 30, 80, 'physical', 5, 50, "Normal DMG Attack" ),
+        Move('Bite', 'Attack', 50, 65, 'physical', 3, 0, "Normal DMG Attack" ),
+    ]
+
+
+
+    MOVE_LIST = [
+        Move('Trample', 'Attack', 45, 100, 'physical', 6, 20, "Normal DMG Attack" ),
+        Move('DropKick', 'Attack', 60, 100, 'physical', 10, 5, "Normal DMG Attack" ),
+        Move('Xslash', 'Attack', 30, 80, 'physical', 10, 90, "Normal DMG Attack" ),
+        Move('Horn Attack', 'Attack', 50, 75, 'physical', 5, 5, "Normal DMG Attack" ),
+        Move('Chomp', 'Attack', 100, 65, 'physical', 12, 10, "Normal DMG Attack" ),
+    ]
+
 
     @classmethod
     def random_mon(self):
@@ -20,12 +56,19 @@ class MonManager(Dice):
             ]
         }
 
-
-
     @classmethod
     def stats(self, lvl):
         return self.dice_roll(lvl, 6, lvl)
+        
 
+    @classmethod
+    def random_moves(self,list, num=4):
+        moves = []
+        for _ in range(num):
+            move = random.choice(list)
+            if move not in moves:
+                moves.append(move)
+        return moves
 
     @classmethod
     def create_random_mon(self, start, stop, move_list):
@@ -36,108 +79,37 @@ class MonManager(Dice):
         mon["name"] = fake.name()
         mon["lvl"] = lvl
         mon["hp"] = self.dice_roll(2, 6, lvl)
-        mon['mana'] = self.dice_roll(3, 10, 10)
         mon["ATK"] = self.stats(lvl)
         mon["DEF"] = self.stats(lvl)
-        mon["MAG"] = self.stats(lvl)
-        mon["MDF"] = self.stats(lvl)
         mon["SPD"] = self.stats(lvl)
-        moves = []
-        for _ in range(4):
-            move = random.choice(move_list)
-            if move not in moves:
-                moves.append(move)
-        mon['moves'] = moves
+        mon["DEX"] = self.stats(lvl)
+        mon["LUC"] = self.stats(lvl)
+
+        mon['moves'] = move_list
         return mon
 
-
-class Move():
-
-    def __init__(self, lvl):
-        self.name =''
-        self.dmg = ''
-        self.chance = ''
-        self.d_type = ''
-        self.cost = ''
 
 
 
 
 class LowLvlMon(MonManager):
-
-    MOVE_LIST = [
-        {
-            "name": "Takle",
-            "type": "A",
-            "dmg": "30",
-            'chance': "90%"
-        },
-        {
-            "name": "Tail whip",
-            "type": "M",
-            "dmg": "40",
-            'chance': "65%"
-        },
-        {
-            "name": "Slash",
-            "type": "A",
-            "dmg": "20",
-            'chance': "100%"
-        },
-        {
-            "name": "Stomp",
-            "type": "M",
-            "dmg": "50",
-            'chance': "55%"
-        },
-        {
-            "name": "Bite",
-            "type": "A",
-            "dmg": "15",
-            'chance': "100%"
-        }
-    ]
-
-
+    
     @classmethod
     def random_mon(self):
-        return self.create_random_mon(1, 5, self.MOVE_LIST)
+        return self.create_random_mon(1, 5, self.random_moves(self.MOVE_LIST, 3))
+
+
+
 
 class MidLvlMon(MonManager):
 
-    MOVE_LIST = [
-        {
-            "name": "Trample",
-            "type": "A",
-            "dmg": "45",
-            'chance': "90%"
-        },
-        {
-            "name": "DropKick",
-            "type": "M",
-            "dmg": "60",
-            'chance': "65%"
-        },
-        {
-            "name": "Xslash",
-            "type": "A",
-            "dmg": "35",
-            'chance': "100%"
-        },
-        {
-            "name": "Horn Attack",
-            "type": "M",
-            "dmg": "100",
-            'chance': "55%"
-        },
-        {
-            "name": "Chomp",
-            "type": "A",
-            "dmg": "30",
-            'chance': "100%"
-        }
-    ]
+    @classmethod
+    def mid_lvl_moves(self):
+        low_lvl = self.random_moves(self.LOW_MOVE_LIST, 1)
+        mid_lvl = self.random_moves(self.MOVE_LIST, 3)
+        return low_lvl + mid_lvl
+
 
     @classmethod
     def random_mon(self):
-        return self.create_random_mon(5, 10, self.MOVE_LIST)
+        return self.create_random_mon(5, 10, self.mid_lvl_moves())
