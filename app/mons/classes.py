@@ -19,28 +19,29 @@ class Move():
         self.effect_chance = effect_chance
 
 
-
 class MonManager(Dice):
     class Meta:
         abstract = True
 
     LOW_MOVE_LIST = [
-        Move('Pound', 'Attack', 40, 100, 'physical', 4, 10, "Normal DMG Attack" ),
-        Move('Tackle', 'Attack', 30, 100, 'physical', 2, 0, "Normal DMG Attack" ),
-        Move('Slash', 'Attack', 30, 80, 'physical', 5, 50, "Normal DMG Attack" ),
-        Move('Bite', 'Attack', 50, 65, 'physical', 3, 0, "Normal DMG Attack" ),
+        Move('Pound', 'Attack', 40, 100, 'physical', 4, 10, "Normal DMG Attack"),
+        Move('Tackle', 'Attack', 30, 100, 'physical', 2, 0, "Normal DMG Attack"),
+        Move('Slash', 'Attack', 30, 80, 'physical', 5, 50, "Normal DMG Attack"),
+        Move('Bite', 'Attack', 50, 65, 'physical', 3, 0, "Normal DMG Attack"),
     ]
-
-
 
     MOVE_LIST = [
-        Move('Trample', 'Attack', 45, 100, 'physical', 6, 20, "Normal DMG Attack" ),
-        Move('DropKick', 'Attack', 60, 100, 'physical', 10, 5, "Normal DMG Attack" ),
-        Move('Xslash', 'Attack', 30, 80, 'physical', 10, 90, "Normal DMG Attack" ),
-        Move('Horn Attack', 'Attack', 50, 75, 'physical', 5, 5, "Normal DMG Attack" ),
-        Move('Chomp', 'Attack', 100, 65, 'physical', 12, 10, "Normal DMG Attack" ),
+        Move('Trample', 'Attack', 45, 100,
+             'physical', 6, 20, "Normal DMG Attack"),
+        Move('DropKick', 'Attack', 60, 100,
+             'physical', 10, 5, "Normal DMG Attack"),
+        Move('Xslash', 'Attack', 30, 80, 'physical',
+             10, 90, "Normal DMG Attack"),
+        Move('Horn Attack', 'Attack', 50, 75,
+             'physical', 5, 5, "Normal DMG Attack"),
+        Move('Chomp', 'Attack', 100, 65, 'physical',
+             12, 10, "Normal DMG Attack"),
     ]
-
 
     @classmethod
     def random_mon(self):
@@ -59,10 +60,9 @@ class MonManager(Dice):
     @classmethod
     def stats(self, lvl):
         return self.dice_roll(lvl, 6, lvl)
-        
 
     @classmethod
-    def random_moves(self,list, num=4):
+    def random_moves(self, list, num=4):
         moves = []
         for _ in range(num):
             move = random.choice(list)
@@ -73,8 +73,8 @@ class MonManager(Dice):
     @classmethod
     def create_random_mon(self, start, stop, move_list):
 
-        lvl = random.randrange(start, stop + 1) 
-        fake = Faker()        
+        lvl = random.randrange(start, stop + 1)
+        fake = Faker()
         mon = {}
         mon["name"] = fake.name()
         mon["lvl"] = lvl
@@ -89,16 +89,11 @@ class MonManager(Dice):
         return mon
 
 
-
-
-
 class LowLvlMon(MonManager):
-    
+
     @classmethod
     def random_mon(self):
         return self.create_random_mon(1, 5, self.random_moves(self.MOVE_LIST, 3))
-
-
 
 
 class MidLvlMon(MonManager):
@@ -108,7 +103,6 @@ class MidLvlMon(MonManager):
         low_lvl = self.random_moves(self.LOW_MOVE_LIST, 1)
         mid_lvl = self.random_moves(self.MOVE_LIST, 3)
         return low_lvl + mid_lvl
-
 
     @classmethod
     def random_mon(self):
