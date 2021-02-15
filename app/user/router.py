@@ -7,7 +7,7 @@ from .auth import (ACCESS_TOKEN_EXPIRE_MINUTES, authenticate_user,
                    create_access_token, fake_item_db, fake_users_db,
                    get_current_active_user, get_password_hash, timedelta)
 from .classes import Token, User
-from .db_user_actions import add_user
+from .db_user_actions import add_user, retrieve_user
 
 user_router = APIRouter()
 
@@ -22,8 +22,7 @@ async def add_user_data(user: User = Body(...)):
 
 @user_router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(
-        fake_users_db, form_data.username, form_data.password)
+    user = await retrieve_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -32,7 +31,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user["username"]}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
